@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+//SOME CHANGES////////
+
+
 typedef struct {
 	long int year;
 	unsigned int month;
