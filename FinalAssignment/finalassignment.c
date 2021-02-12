@@ -27,7 +27,7 @@ typedef struct {
 	Person* residents;
 	int numOfResidents;
 }Db_mgr;
-///....
+
 void print_person(Person* p);
 void init_db(Db_mgr* p);
 char menu();
