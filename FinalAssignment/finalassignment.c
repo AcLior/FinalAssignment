@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #define ARR_SIZE 10
+#define hello 1
 
 typedef struct {
 	long int year;
@@ -37,6 +38,9 @@ void search_person(Db_mgr *p);
 Person* search_id(Db_mgr *p, long long int id);
 void search_parents(Db_mgr *p);
 void printParents(Person* temp);
+long long int HasMother(Db_mgr* p, long long int id);
+long long int HasFather(Db_mgr* p, long long int id);
+void UpdateKids(Db_mgr* p, long long int id);
 //void delete_person(Db_mgr* p);
 
 //..........MAIN..........................//
@@ -256,56 +260,62 @@ void add_person(Db_mgr *p) {
 
 
 //OPTION 2
-void search_person(Db_mgr *p) {
+void search_person(Db_mgr* p) {
 	long long int temp;
-	char choise;
-	Person *temp2=malloc(sizeof(Person));
+	char choice;
+	Person* temp2 = malloc(sizeof(Person));
 	printf("Enter the ID of the person you want to find\n");
-	scanf("%lld",&temp);
-	temp2=search_id(p, temp);
+	scanf("%lld", &temp);
+	temp2 = search_id(p, temp);
 	if (temp2 == NULL) {
-		printf("Coudn't find the given id\n");
+		printf("Couldn't find the given ID\n");
 	}
 
-	else { 
-		printf("1.print all data\n2.print the parent's details\n");
-		choise=getchar();
-		choise = getchar();
-
-		switch (choise) {
-		case '1': print_person(temp2);
-			break;
-		case '2': 
-			printParents(temp2);
-				break;
-		}
+	else {
+		print_person(temp2);
 
 	}
-
-} 
+}
 
 //OPTION 3
-void search_parents(Db_mgr *p) {
-	
+void search_parents(Db_mgr* p)
+{
 	search_person(p);
-
 }
 
 //OPTION 4
 
-//void delete_person(Db_mgr* p) {
-//	long long int temp;
-//	printf("Enter the ID of the person you want to delete\n");
-//	scanf("%lld", &temp);
-//
-//	if (search_Id(temp) == NULL) {
-//		printf("Coudn't find the given id\n");
-//	}
-//	else {
-//
-//	}
-//
-//}
+void delete_person(Db_mgr* p) 
+{
+	long long int id, father, mother, partnerID;
+	printf("Enter the ID of the person you want to delete\n");
+	scanf("%lld", &id);
+	Person* p1 = malloc(sizeof(Person));
+	p1 = search_id(p, id);
+	father = p1->fatherId;
+	mother = p1->motherId;
+	partnerID = p1->partnerId;
+	if (p1==NULL)
+	{
+		printf("Couldn't find the given id\n");
+	}
+	else 
+	{
+		if (p1->partnerId!=0)
+		{
+			UpdatePartnerID(p, partnerID);
+		}
+		if (HasFather(p,id)!=0)
+		{
+			UpdateKids(p, father);
+		}
+		if (HasMother(p,id)!=0)
+		{
+			UpdateKids(p, mother);
+		}
+	}
+
+}
 
 
 
@@ -344,6 +354,7 @@ Db_mgr* increaseResidents(Db_mgr *p, int size) {
 	return temp;
 }
 
+
 Person* search_id(Db_mgr *p, long long int id) {
 	
 	for (int j = 0; j < p->numOfResidents; j++) {
@@ -370,6 +381,55 @@ void printParents(Person* temp) {
 
 	}
 	else {
-		printf("There's no parents\n");
+		printf("There are no parents\n");
+	}
+}
+
+long long int HasMother(Db_mgr* p, long long int id)
+{
+	Person* p1 = search_id(p, id);
+	if (p1==NULL)
+	{
+		printf("No person has been found\n");
+		return NULL;
+	}
+	else
+	{
+		return p1->motherId;
+	}
+}
+
+long long int HasFather(Db_mgr* p, long long int id)
+{
+	Person* p1 = search_id(p, id);
+	if (p1 == NULL)
+	{
+		printf("No person has been found\n");
+	}
+	else
+	{
+		return p1->fatherId;
+	}
+}
+
+void UpdateKids(Db_mgr* p,long long int id)
+{
+	for (int i = 0; i < p->numOfResidents; i++)
+	{
+		if (p->residents[i].id==id)
+		{
+			p->residents[i].numOfChildren--;
+		}
+	}
+}
+
+void UpdatePartnerID(Db_mgr* p, long long int id)
+{
+	for (int i = 0; i < p->numOfResidents; i++)
+	{
+		if (p->residents[i].id == id)
+		{
+			p->residents->partnerId = 0;
+		}
 	}
 }
