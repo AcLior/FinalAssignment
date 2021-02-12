@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #define ARR_SIZE 10
-#define hello 1
 
 typedef struct {
 	long int year;
