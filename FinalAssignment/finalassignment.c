@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define ARR_SIZE 10
+#define ARR_SIZE1 10
+#define ARR_SIZE2 20
 
 typedef struct {
 	long int year;
@@ -40,6 +41,7 @@ void printParents(Person* temp);
 long long int HasMother(Db_mgr* p, long long int id);
 long long int HasFather(Db_mgr* p, long long int id);
 void UpdateKids(Db_mgr* p, long long int id);
+void search_by_name(Db_mgr* p);
 //void delete_person(Db_mgr* p);
 
 //..........MAIN..........................//
@@ -316,6 +318,43 @@ void delete_person(Db_mgr* p)
 
 }
 
+// Option 7
+
+void search_by_name(Db_mgr* p)
+{
+	int count = 0;
+	char first[ARR_SIZE2];
+	char last[ARR_SIZE2];
+	printf("Enter first name\n");
+	scanf("%s", first);
+	printf("Enter last name\n");
+	fseek(stdin, 0, SEEK_END);
+	scanf("%s", last);
+	char* f = (char*)malloc((strlen(first) + 1) * sizeof(char));
+	char* l = (char*)malloc((strlen(last) + 1) * sizeof(char));
+	if (l==NULL||f==NULL)
+	{
+		printf("Allocation failed...\n");
+	}
+	else
+	{
+		strcpy(f, first);
+		strcpy(l, last);
+		for (int i = 0; i < p->numOfResidents; i++)
+		{
+			if (strcmp(p->residents[i].name, f) == 0 && strcmp(p->residents[i].family, l) == 0)
+			{
+				print_person(&p->residents[i]);
+				count = 1;
+			}
+		}
+		if (count==0)
+		{
+			printf("No residents have been found\n");
+		}
+	}
+}
+
 
 
 //..............EXTRA FUNCTIONS.......................//
@@ -432,3 +471,4 @@ void UpdatePartnerID(Db_mgr* p, long long int id)
 		}
 	}
 }
+
