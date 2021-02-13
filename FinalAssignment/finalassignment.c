@@ -33,7 +33,7 @@ void init_db(Db_mgr* p);
 char menu();
 void add_person(Db_mgr *p);
 void copyStruct(Person *p1, Person *p2);
-Db_mgr* increaseResidents(Db_mgr *p,int size);
+Db_mgr* ChangeResidents(Db_mgr* p, int size);
 void search_person(Db_mgr *p);
 Person* search_id(Db_mgr *p, long long int id);
 void search_parents(Db_mgr *p);
@@ -41,42 +41,50 @@ void printParents(Person* temp);
 long long int HasMother(Db_mgr* p, long long int id);
 long long int HasFather(Db_mgr* p, long long int id);
 void UpdateKids(Db_mgr* p, long long int id);
+void UpdatePartnerID(Db_mgr* p, long long int id);
 void search_by_name(Db_mgr* p);
-//void delete_person(Db_mgr* p);
+void print_db(Db_mgr* p);
+void printBirthday(Person* p);
+void EraseKidsID(Db_mgr* db, Person* p, long long int id);
+void EraseFatherID(Person* p);
+void EraseMotherID(Person* p);
+const char* ConvertIDtoChar(long long int id);
+void OrderByAscID(Db_mgr* db);
+void delete_person(Db_mgr* p);
 
 //..........MAIN..........................//
 
 void main() {
 	
-	int flag = 1;
-	Db_mgr* mgr=malloc(sizeof(mgr));
-	init_db(mgr);
-
-	while (flag) {
-		switch (menu()) {
-
-		case '1': add_person(mgr);
-			break;
-		case '2': search_person(mgr);
-			break;
-		case '3': search_parents(mgr);
-			break;
-			//case '4': 
-			//case '5':
-			//case '6':
-			//case '7':
-		case '8': flag = 0;
-			break;
-
-		}
-}
-	
-
-
-
-	for (int k = 0; k <mgr->numOfResidents; k++) {
-		print_person(&mgr->residents[k]);
-	}
+//	int flag = 1;
+//	Db_mgr* mgr=malloc(sizeof(mgr));
+//	init_db(mgr);
+//
+//	while (flag) {
+//		switch (menu()) {
+//
+//		case '1': add_person(mgr);
+//			break;
+//		case '2': search_person(mgr);
+//			break;
+//		case '3': search_parents(mgr);
+//			break;
+//			//case '4': 
+//			//case '5':
+//			//case '6':
+//			//case '7':
+//		case '8': flag = 0;
+//			break;
+//
+//		}
+//}
+//	
+//
+//
+//
+//	for (int k = 0; k <mgr->numOfResidents; k++) {
+//		print_person(&mgr->residents[k]);
+//	}
 
 }
 
@@ -88,6 +96,7 @@ void print_person(Person* p) {
 	printf("Id: %lld\n", p->id);
 	printf("First Name: %s\n", p->name);
 	printf("Last Name: %s\n", p->family);
+	printBirthday(p);
 	printf("Partner Id: %lld\n", p->partnerId);
 	printf("Mother Id: %lld\n", p->motherId);
 	printf("Father Id: %lld\n", p->fatherId);
@@ -147,13 +156,13 @@ void add_person(Db_mgr *p) {
 	
 	static int i;
 	int flag = 0;
-	Person *temp = (Person*)calloc(10, sizeof(Person));
-	temp->name = (char*)calloc(10, sizeof(char));
-	temp->family = (char*)calloc(10, sizeof(char));
+	Person* temp = (Person*)calloc(ARR_SIZE1, sizeof(Person));
+	temp->name = (char*)calloc(ARR_SIZE1, sizeof(char));
+	temp->family = (char*)calloc(ARR_SIZE1, sizeof(char));
 
 	if (p->numOfResidents < i) {
 		
-		p = increaseResidents(p,i);
+		/*p = increaseResidents(p,i);*/
 		
 	}
 	if (&p->residents[0].id==0) {
@@ -161,37 +170,37 @@ void add_person(Db_mgr *p) {
 	}
 
 	do {
-		printf("Enter Id:\n");
+		printf("Enter ID:\n");
 		scanf("%lld", &p->residents[i].id);
 		if (p->residents[i].id < 0) {
-			printf("This id is out of range(positive numbers only)\n");
+			printf("Please provide a valid ID (positive numbers only)\n");
 			flag = 1;
 		}
 	} while (flag);
 
-	p->residents[i].name = (char*)malloc(10*sizeof(char));
-	p->residents[i].family = (char*)malloc(10*sizeof(char));
+	p->residents[i].name = (char*)malloc(ARR_SIZE1 * sizeof(char));
+	p->residents[i].family = (char*)malloc(ARR_SIZE1 * sizeof(char));
 
 	if (p->residents[i].name == NULL || p->residents[i].family == NULL) {
-		printf("ERROR..allocate memory went wrong\n");
+		printf("ERROR... couldn't allocate memory\n");
 	}
 
-	printf("Enter first name:\n");
-	fgets(p->residents[i].name,10*sizeof(p->residents[i].name),stdin);
-	fgets(p->residents[i].name, 10 * sizeof(p->residents[i].name), stdin);
+	printf("Enter first name: \n");
+	fgets(p->residents[i].name, ARR_SIZE1 * sizeof(p->residents[i].name), stdin);
+	fgets(p->residents[i].name, ARR_SIZE1 * sizeof(p->residents[i].name), stdin);
 
-	printf("Enter last name:\n");
-	fgets(p->residents[i].family, 10 * sizeof(p->residents[i].family), stdin);
+	printf("Enter last name: \n");
+	fgets(p->residents[i].family, ARR_SIZE1 * sizeof(p->residents[i].family), stdin);
 
 
 	do {
 		flag = 0;
-		printf("Enter date of birth:\n");
-		printf("Day:\n");
+		printf("Enter date of birth: \n");
+		printf("Day: \n");
 		scanf("%d", &p->residents[i].birthday.day);
-		printf("Month:\n");
+		printf("Month: \n");
 		scanf("%d", &p->residents[i].birthday.month);
-		printf("Year:\n");
+		printf("Year: \n");
 		scanf("%ld", &p->residents[i].birthday.year);
 
 		if (p->residents[i].birthday.day > 31 || p->residents[i].birthday.day < 1) {
@@ -232,9 +241,7 @@ void add_person(Db_mgr *p) {
 
 
 
-
-
-	 ////////////// order persons///////////////////
+	 ////////////// Ascending ID arrangement of residents ///////////////////
 	for (int index = 0; index <= i; index++) {
 		for (int j = index + 1; j <= i; j++) {
 
@@ -242,20 +249,11 @@ void add_person(Db_mgr *p) {
 				copyStruct(temp, &p->residents[j]);
 				copyStruct(&p->residents[j], &p->residents[index]);
 				copyStruct(&p->residents[index], temp);
-
-
 			}
-
 		}
-
 	}
 	i++;
-
 	free(temp);
-
-
-
-
 }
 
 
@@ -288,13 +286,19 @@ void search_parents(Db_mgr* p)
 
 void delete_person(Db_mgr* p) 
 {
+	long long int Idint;
+	char gender;
 	long long int id, father, mother, partnerID;
 	printf("Enter the ID of the person you want to delete\n");
 	scanf("%lld", &id);
+	printf("What's his gender? f - female OR m - male\n");
+	scanf(" %c", &gender);
 	Person* p1 = malloc(sizeof(Person));
+	Person* f = malloc(sizeof(Person));
+	Person* m = malloc(sizeof(Person));
 	p1 = search_id(p, id);
-	father = p1->fatherId;
-	mother = p1->motherId;
+	f = search_id(p, p1->fatherId);
+	m = search_id(p, p1->motherId);
 	partnerID = p1->partnerId;
 	if (p1==NULL)
 	{
@@ -302,20 +306,61 @@ void delete_person(Db_mgr* p)
 	}
 	else 
 	{
-		if (p1->partnerId!=0)
+		if (!(p1->partnerId))
 		{
 			UpdatePartnerID(p, partnerID);
 		}
-		if (HasFather(p,id)!=0)
+		if (!HasFather(p,id))
 		{
-			UpdateKids(p, father);
+			UpdateKids(p, f);
+			EraseKidsID(p, f, id);
 		}
-		if (HasMother(p,id)!=0)
+		if (!HasMother(p,id))
 		{
-			UpdateKids(p, mother);
+			UpdateKids(p, m);
+			EraseKidsID(p, m, id);
+		}
+		if (gender=='f')
+		{
+			for (int i = 0; i < p1->numOfChildren; i++)
+			{
+				Idint = atoll(p1->childrenPtr[i]);
+				EraseMotherID(search_id(p, Idint));
+			}
+		}
+		else if (gender=='m')
+		{
+			for (int i = 0; i < p1->numOfChildren; i++)
+			{
+				Idint = atoll(p1->childrenPtr[i]);
+				EraseFatherID(search_id(p, Idint));
+			}
 		}
 	}
+	for (int i = 0; i < p->numOfResidents; i++)
+	{
+		if (p->residents[i].id==id)
+		{
+			for (int j = i; j < p->numOfResidents - 1; j++)
+			{
+				copyStruct(&p->residents[j], &p->residents[j + 1]);
+			}
+			break;
+		}
+	}
+	p->numOfResidents--;
+	ChangeResidents(p, p->numOfResidents);
+	OrderByAscID(p);
+}
 
+//OPTION 6
+void print_db(Db_mgr* p)
+{
+	for (int i = 0; i < p->numOfResidents; i++)
+	{
+		printf("Person No. [%d]", i + 1);
+		print_person(&p->residents[i]);
+	}
 }
 
 // Option 7
@@ -373,7 +418,7 @@ void copyStruct(Person *src, Person *dest) {
 	src->numOfChildren = dest->numOfChildren;
 	for (int j = 0; j < dest->numOfChildren; j++) {
 
-		src->childrenPtr[j] = (char*)malloc(10 * sizeof(char));
+		src->childrenPtr[j] = (char*)malloc(ARR_SIZE1 * sizeof(char));
 
 		strcpy(src->childrenPtr[j], dest->childrenPtr[j]);
 
@@ -381,7 +426,7 @@ void copyStruct(Person *src, Person *dest) {
 
 }
 
-Db_mgr* increaseResidents(Db_mgr *p, int size) {
+Db_mgr* ChangeResidents(Db_mgr *p, int size) {
 	Db_mgr* temp = malloc(sizeof(temp));
 	temp->residents = (Person*)calloc(size, sizeof(Person));
 
@@ -423,9 +468,9 @@ void printParents(Person* temp) {
 	}
 }
 
-long long int HasMother(Db_mgr* p, long long int id)
+long long int HasMother(Db_mgr* p, Person* d)
 {
-	Person* p1 = search_id(p, id);
+	Person* p1 = search_id(p,d->id);
 	if (p1==NULL)
 	{
 		printf("No person has been found\n");
@@ -437,12 +482,13 @@ long long int HasMother(Db_mgr* p, long long int id)
 	}
 }
 
-long long int HasFather(Db_mgr* p, long long int id)
+long long int HasFather(Db_mgr* p, Person* d)
 {
-	Person* p1 = search_id(p, id);
+	Person* p1 = search_id(p, d->id);
 	if (p1 == NULL)
 	{
 		printf("No person has been found\n");
+		return NULL;
 	}
 	else
 	{
@@ -450,11 +496,11 @@ long long int HasFather(Db_mgr* p, long long int id)
 	}
 }
 
-void UpdateKids(Db_mgr* p,long long int id)
+void UpdateKids(Db_mgr* p,Person* d)
 {
 	for (int i = 0; i < p->numOfResidents; i++)
 	{
-		if (p->residents[i].id==id)
+		if (p->residents[i].id==d->id)
 		{
 			p->residents[i].numOfChildren--;
 		}
@@ -471,4 +517,76 @@ void UpdatePartnerID(Db_mgr* p, long long int id)
 		}
 	}
 }
+
+void printBirthday(Person* p)
+{
+	printf("Birth date:\n");
+	printf("Day: %ld\n", p->birthday.day);
+	printf("Month: %u\n", p->birthday.month);
+	printf("Year: %u\n", p->birthday.year);
+}
+
+void EraseKidsID(Db_mgr* db, Person* p, long long int id)
+{
+	int save;
+	char ID[] = { ConvertIDtoChar(id) };
+	if (!search_id(db,p->id))
+	{
+		printf("No such ID has been found\n");
+	}
+	else
+	{
+		for (int i = 0; i < p->numOfChildren; i++)
+
+		{
+			if (strcmp(p->childrenPtr[i],ID)==0)
+			{
+				p->childrenPtr[i] = 0;
+				for (int j = i; j < p->numOfChildren-1; j++)
+				{
+					strcpy(p->childrenPtr[j], p->childrenPtr[j + 1]);
+					save = j;
+				}
+				p->childrenPtr[save + 1] = 0;
+				break;
+			}
+		}
+	}
+}
+
+const char* ConvertIDtoChar(long long int id)
+{
+	char* ID = (char*)malloc(ARR_SIZE1 * sizeof(char));
+	sprintf(id, "%d", id);
+	return id;
+}
+
+void EraseFatherID(Person* p)
+{
+	p->fatherId = 0;
+}
+
+void EraseMotherID(Person* p)
+{
+	p->motherId = 0;
+}
+
+void OrderByAscID(Db_mgr* db)
+{
+	Person* temp = (Person*)calloc(1, sizeof(Person));
+	for (int index = 0; index <= db->numOfResidents; index++)
+	{
+		for (int j = index + 1; j <= db->numOfResidents; j++)
+		{
+			if (db->residents[index].id > db->residents[j].id)
+			{
+				copyStruct(temp, &db->residents[j]);
+				copyStruct(&db->residents[j], &db->residents[index]);
+				copyStruct(&db->residents[index], temp);
+			}
+		}
+	}
+	free(temp);
+}
+
 
