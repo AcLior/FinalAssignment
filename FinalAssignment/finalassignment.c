@@ -288,7 +288,7 @@ void delete_person(Db_mgr* p)
 {
 	long long int Idint;
 	char gender;
-	long long int id, father, mother, partnerID;
+	long long int id, partnerID;
 	printf("Enter the ID of the person you want to delete\n");
 	scanf("%lld", &id);
 	printf("What's his gender? f - female OR m - male\n");
