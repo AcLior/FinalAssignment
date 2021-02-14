@@ -48,14 +48,20 @@ void printBirthday(Person* p);
 void EraseKidsID(Db_mgr* db, Person* p, long long int id);
 void EraseFatherID(Person* p);
 void EraseMotherID(Person* p);
-const char* ConvertIDtoChar(long long int id);
+char* ConvertIDtoChar(long long int id);
 void OrderByAscID(Db_mgr* db);
 void delete_person(Db_mgr* p);
 
 //..........MAIN..........................//
 
 void main() {
-	
+	long long int x = 209520980;
+	char* ID = (char*)malloc(ARR_SIZE1 * sizeof(char));
+	sprintf(ID, "%lld", x);
+	for (int i = 0; i < strlen(ID); i++)
+	{
+		printf("%c\n", ID[i]);
+	}
 //	int flag = 1;
 //	Db_mgr* mgr=malloc(sizeof(mgr));
 //	init_db(mgr);
@@ -310,12 +316,12 @@ void delete_person(Db_mgr* p)
 		{
 			UpdatePartnerID(p, partnerID);
 		}
-		if (!HasFather(p,id))
+		if (!HasFather(p,p1))
 		{
 			UpdateKids(p, f);
 			EraseKidsID(p, f, id);
 		}
-		if (!HasMother(p,id))
+		if (!HasMother(p,p1))
 		{
 			UpdateKids(p, m);
 			EraseKidsID(p, m, id);
@@ -349,8 +355,14 @@ void delete_person(Db_mgr* p)
 		}
 	}
 	p->numOfResidents--;
-	ChangeResidents(p, p->numOfResidents);
+	p = ChangeResidents(p, p->numOfResidents);
 	OrderByAscID(p);
+}
+
+//OPTION 5
+int get_gen(Db_mgr* db)
+{
+	
 }
 
 //OPTION 6
@@ -399,6 +411,9 @@ void search_by_name(Db_mgr* p)
 		}
 	}
 }
+
+//OPTION 8
+
 
 
 
@@ -474,7 +489,7 @@ long long int HasMother(Db_mgr* p, Person* d)
 	if (p1==NULL)
 	{
 		printf("No person has been found\n");
-		return NULL;
+		return 0;
 	}
 	else
 	{
@@ -488,7 +503,7 @@ long long int HasFather(Db_mgr* p, Person* d)
 	if (p1 == NULL)
 	{
 		printf("No person has been found\n");
-		return NULL;
+		return 0;
 	}
 	else
 	{
@@ -554,11 +569,11 @@ void EraseKidsID(Db_mgr* db, Person* p, long long int id)
 	}
 }
 
-const char* ConvertIDtoChar(long long int id)
+char* ConvertIDtoChar(long long int id)
 {
 	char* ID = (char*)malloc(ARR_SIZE1 * sizeof(char));
-	sprintf(id, "%d", id);
-	return id;
+	sprintf(ID, "%lld", id);
+	return ID;
 }
 
 void EraseFatherID(Person* p)
@@ -589,4 +604,15 @@ void OrderByAscID(Db_mgr* db)
 	free(temp);
 }
 
+int hasKids(Person* p)
+{
+	if (p->numOfChildren)
+	{
+		return p->numOfChildren;
+	}
+	else
+	{
+		return 0;
+	}
+}
 
