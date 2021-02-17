@@ -26,6 +26,7 @@ typedef struct {
 typedef struct {
 	Person* residents;
 	int numOfResidents;
+	int countofresident;
 }Db_mgr;
 
 void print_person(Person* p);
@@ -38,9 +39,9 @@ void search_person(Db_mgr *p);
 Person* search_id(Db_mgr *p, long long int id);
 void search_parents(Db_mgr *p);
 void printParents(Person* temp);
-long long int HasMother(Db_mgr* p, long long int id);
-long long int HasFather(Db_mgr* p, long long int id);
-void UpdateKids(Db_mgr* p, long long int id);
+long long int HasMother(Db_mgr* p, Person* id);
+long long int HasFather(Db_mgr* p, Person* id);
+void UpdateKids(Db_mgr* p, Person* id);
 void UpdatePartnerID(Db_mgr* p, long long int id);
 void search_by_name(Db_mgr* p);
 void print_db(Db_mgr* p);
@@ -51,46 +52,42 @@ void EraseMotherID(Person* p);
 char* ConvertIDtoChar(long long int id);
 void OrderByAscID(Db_mgr* db);
 void delete_person(Db_mgr* p);
-
+int get_gen(Db_mgr* db);
+int hasKids(Person* p);
 //..........MAIN..........................//
 
 void main() {
-	long long int x = 209520980;
-	char* ID = (char*)malloc(ARR_SIZE1 * sizeof(char));
-	sprintf(ID, "%lld", x);
-	for (int i = 0; i < strlen(ID); i++)
-	{
-		printf("%c\n", ID[i]);
-	}
-//	int flag = 1;
-//	Db_mgr* mgr=malloc(sizeof(mgr));
-//	init_db(mgr);
-//
-//	while (flag) {
-//		switch (menu()) {
-//
-//		case '1': add_person(mgr);
-//			break;
-//		case '2': search_person(mgr);
-//			break;
-//		case '3': search_parents(mgr);
-//			break;
-//			//case '4': 
-//			//case '5':
-//			//case '6':
-//			//case '7':
-//		case '8': flag = 0;
-//			break;
-//
-//		}
-//}
-//	
-//
-//
-//
-//	for (int k = 0; k <mgr->numOfResidents; k++) {
-//		print_person(&mgr->residents[k]);
-//	}
+
+	
+	int flag = 1;
+	Db_mgr* mgr=malloc(sizeof(mgr));
+	init_db(mgr);
+	add_person(mgr);
+	add_person(mgr);
+
+	get_gen(mgr);
+	/*while (flag) {
+		switch (menu()) {
+
+		case '1': add_person(mgr);
+			break;
+		case '2': search_person(mgr);
+			break;
+		case '3': search_parents(mgr);
+			break;
+			case '4': 
+			case '5': get_gen(mgr);
+				break;
+			case '6':
+			case '7':
+		case '8': flag = 0;
+			break;
+
+		}
+}
+	
+*/
+
 
 }
 
@@ -119,7 +116,9 @@ void print_person(Person* p) {
 
 
 void init_db(Db_mgr* p) {
+	
 	int size = 0;
+	
 	do {
 		printf("Enter the number of residents\n");
 		scanf("%d", &size);
@@ -143,6 +142,8 @@ char menu() {
 		printf("Database System Menu:\n");
 		printf("1. Add person\n2. Search a person\n3. Search parents\n4. Delete a person\n");
 		printf("5. Get generation\n6.Print database\n7. Search by name\n8. Quit\n");
+		fseek(stdin, 0, SEEK_END);
+
 		scanf("%c", &tav);
 		if (!(tav >= '1'&&tav <= '8')) {
 			printf("Wrong character, Please try again\n");
@@ -162,9 +163,9 @@ void add_person(Db_mgr *p) {
 	
 	static int i;
 	int flag = 0;
-	Person* temp = (Person*)calloc(ARR_SIZE1, sizeof(Person));
-	temp->name = (char*)calloc(ARR_SIZE1, sizeof(char));
-	temp->family = (char*)calloc(ARR_SIZE1, sizeof(char));
+	Person* temp = (Person*)calloc(10, sizeof(Person));
+	temp->name = (char*)calloc(10, sizeof(char));
+	temp->family = (char*)calloc(10, sizeof(char));
 
 	if (p->numOfResidents < i) {
 		
@@ -234,7 +235,7 @@ void add_person(Db_mgr *p) {
 	scanf("%d", &p->residents[i].numOfChildren);
 
 	if (p->residents[i].numOfChildren > 0) {
-		temp->childrenPtr = (char**)calloc(p->residents[i].numOfChildren, sizeof(char));
+		temp->childrenPtr = (char**)malloc(p->residents[i].numOfChildren* sizeof(char));
 		p->residents[i].childrenPtr = (char**)malloc((p->residents[i].numOfChildren)*sizeof(char));
 		for (int j=0; j < p->residents[i].numOfChildren;j++) {
 			p->residents[i].childrenPtr[j] = (char*)malloc(10*sizeof(char));
@@ -248,7 +249,7 @@ void add_person(Db_mgr *p) {
 
 
 	 ////////////// Ascending ID arrangement of residents ///////////////////
-	for (int index = 0; index <= i; index++) {
+	/*for (int index = 0; index <= i; index++) {
 		for (int j = index + 1; j <= i; j++) {
 
 			if (p->residents[index].id > p->residents[j].id) {
@@ -257,9 +258,8 @@ void add_person(Db_mgr *p) {
 				copyStruct(&p->residents[index], temp);
 			}
 		}
-	}
+	}*/
 	i++;
-	free(temp);
 }
 
 
@@ -267,7 +267,7 @@ void add_person(Db_mgr *p) {
 //OPTION 2
 void search_person(Db_mgr* p) {
 	long long int temp;
-	char choice;
+	
 	Person* temp2 = malloc(sizeof(Person));
 	printf("Enter the ID of the person you want to find\n");
 	scanf("%lld", &temp);
@@ -362,7 +362,85 @@ void delete_person(Db_mgr* p)
 //OPTION 5
 int get_gen(Db_mgr* db)
 {
-	
+	long long int ID;
+	long long int primaryID;
+	int size=0;
+	int tempSize = 0;
+	int gen=0;
+	int count=0;
+	int index = 0;
+	int subindex = 0;
+	int primaryNumOfChild = 0;
+	int *arrayofsize = malloc(sizeof(int));
+	int sizeofarray = 0;
+	Person* primary = malloc(sizeof(Person));
+	Person* kidsarray= malloc(sizeof(Person));
+	printf("Enter the id of the resident\n");
+	scanf("%lld",&ID);
+	primary = search_id(db, ID);
+	primaryNumOfChild = primary->numOfChildren;
+		if (primary != NULL) {
+			if (hasKids(primary)) {
+				kidsarray = (Person*)calloc(hasKids(primary), sizeof(Person));
+				for (index = 0; index < primaryNumOfChild; index++) {
+					 
+					primaryID = _atoi64(&(*primary->childrenPtr[index]));
+					
+					if (search_id(db, primaryID) != NULL) {
+						kidsarray[index] = *(search_id(db, primaryID));
+
+					}
+					
+
+					
+					
+				}
+				gen = 2;
+			}
+			else {
+				gen = 1;
+			}
+			
+			
+			for (int i = 0; i < index; i++) {
+				
+					size = hasKids(&kidsarray[i]);
+					if (size == 0) {
+						continue;
+					}
+					kidsarray = (Person*)realloc(kidsarray, size * sizeof(Person));
+					subindex = index;
+					while (count != size) {
+						ID=_atoi64(&(*kidsarray[i].childrenPtr[count]));
+						
+						if (search_id(db, ID) != NULL) {
+							kidsarray[subindex]=* search_id(db, ID);
+							subindex++;
+							
+						}
+						else {
+							kidsarray = (Person*)realloc(kidsarray, --size * sizeof(Person));
+
+						}
+						count++;
+					}
+					
+					arrayofsize[i] = size;
+					sizeofarray = i;
+					subindex = 0;
+					count = 0;
+					index += size;
+				}
+				
+		}
+		
+		for (int i = 0; i < (sizeofarray+1); i++) {
+			if (arrayofsize[i] != 0) {
+				gen++;
+			}
+		}
+		printf("The gen of the resident is : %d\n",gen);
+	return gen;
 }
 
 //OPTION 6
@@ -415,10 +493,95 @@ void search_by_name(Db_mgr* p)
 //OPTION 8
 
 
+int get_gen(Db_mgr* db)
+{
+	long long int ID;
+	int size = 0;
+	int j = 0;
+	int gen = 0;
+	int count = 0;
+	int index = 1;
+	int subindex = 0;
+	int arrayofsize[10];
+	Person* primary = (Person*)malloc(sizeof(Person));
+	Person* kids = (Person*)malloc(sizeof(Person));
+	Person* kidsarray = (Person*)malloc(sizeof(Person));
+	printf("Enter the id of the resident\n");
+	scanf("%lld", &ID);
+
+	if (search_id(db, ID) != NULL) {
+		gen++;
+
+	}
+	for (int i = 0; i < index; i++) {
+
+		primary = search_id(db, ID);
+		if (primary != NULL) {
+			gen++;
+
+			size++;
+			kidsarray = (Person*)realloc(kidsarray, (size) * sizeof(Person));
+			count = hasKids(primary);
+			if (count == 0) {
+				continue;
+			}
+			j = 0;
+
+
+			subindex = index;
+			while (count) {
+
+				ID = _atoi64(&(*primary->childrenPtr[j++]));
+				kids = search_id(db, ID);
+				if (kids != NULL) {
+
+					kidsarray = (Person*)realloc(kidsarray, (++size) * sizeof(Person));
+
+					//copykids(&kidsarray[subindex++], &kids);
+
+					kidsarray[subindex].id = kids->id;
+					for (int k = 0; k < kids->numOfChildren; k++) {
+						kidsarray[subindex].childrenPtr = (char**)malloc((kids->numOfChildren + 1) * sizeof(char));
+						kidsarray[subindex].childrenPtr[k] = (char*)malloc(strlen(kids->childrenPtr[k]) * sizeof(char));
+						kidsarray[subindex].childrenPtr[k] = kids->childrenPtr[k];
+					}
+					subindex++;
+
+					index++;
+				}
+				count--;
+
+
+			}
+
+
+
+		}
+
+	}
+
+
+
+	free(primary);
+	free(kidsarray);
+
+	return gen;
+}
+
 
 
 //..............EXTRA FUNCTIONS.......................//
+void copyChildStruct(Person *src, Person *dest) {
+	src->id = dest->id;
+	src->numOfChildren = dest->numOfChildren;
+	for (int j = 0; j < dest->numOfChildren; j++) {
 
+		src->childrenPtr[j] = (char*)calloc(ARR_SIZE1 , sizeof(char));
+
+		strcpy(src->childrenPtr[j], dest->childrenPtr[j]);
+
+	}
+}
 
 void copyStruct(Person *src, Person *dest) {
 	src->id = dest->id;
@@ -575,6 +738,7 @@ char* ConvertIDtoChar(long long int id)
 	sprintf(ID, "%lld", id);
 	return ID;
 }
+
 
 void EraseFatherID(Person* p)
 {
